@@ -53,6 +53,9 @@ def main():
             elif 'hora' in response:
                 hora = datetime.datetime.now().strftime("%I:%M %p")
                 talk(f"Son las {hora}")
+            elif 'fecha' in response:
+                fecha = datetime.datetime.now().strftime("%A, %B %d, %Y")
+                talk("Hoy estamos: " + fecha)
             elif 'apágate' in response:
                 talk("Apagando...")
                 break

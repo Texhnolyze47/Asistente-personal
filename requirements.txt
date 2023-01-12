@@ -16,7 +16,6 @@ PyAutoGUI==0.9.53
 PyGetWindow==0.0.9
 PyMsgBox==1.0.9
 pyperclip==1.8.2
-pypiwin32==223
 PyRect==0.2.0
 PyScreeze==0.1.28
 pyttsx3==2.90
