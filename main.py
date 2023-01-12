@@ -1,3 +1,4 @@
+import datetime
 import io
 from pydub import AudioSegment
 import speech_recognition as sr
@@ -44,12 +45,15 @@ def main():
 
     try:
         response = recongize_audio(listen()).lower()
-        talk(response)
-        #print(response)
-        if 'reproduce' in response:
-            music = response.replace('reproduce','')
-            talk(f"Reproduciendo {music}")
-            pywhatkit.playonyt(music)
+        while True:
+            response = recongize_audio(listen()).lower()
+            if 'reproduce' in response:
+                music = response.replace('reproduce','')
+                talk(f"Reproduciendo {music}")
+                pywhatkit.playonyt(music)
+            if 'apagado' in response:
+                talk("Apagando...")
+                break
     except Exception as e:
         talk(f"Lo siento no te entendi debido a este error: {e}")
         print(e)
