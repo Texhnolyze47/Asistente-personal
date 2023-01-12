@@ -1,5 +1,8 @@
 import datetime
 import io
+
+import pygame
+import wikipedia
 from pydub import AudioSegment
 import speech_recognition as sr
 import whisper
@@ -8,8 +11,7 @@ import os
 import pyttsx3
 import pywhatkit
 
-temp_file = tempfile.mkdtemp()
-save_path = os.path.join(temp_file, 'temp.wav')
+name = 'alexa'
 
 listener = sr.Recognizer()
 
@@ -17,45 +19,52 @@ engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('rate', 145)
 engine.setProperty('voice', voices[0].id)
+wikipedia.set_lang('es')
+
 
 def talk(text):
     engine.say(text)
     engine.runAndWait()
 
+
 def listen():
+    commands = ""
     try:
         with sr.Microphone() as source:
             print("Di algo")
-            listener.adjust_for_ambient_noise(source)
-            audio = listener.listen(source)
-            data = io.BytesIO(audio.get_wav_data())
-            audio_clip = AudioSegment.from_file(data)
-            audio_clip.export(save_path,format='wav')
+            voice = listener.listen(source)
+            commands = listener.recognize_google(voice, language='es-MX')
+            commands = ''.join(commands).lower()
+            if name in commands:
+                commands = commands.replace('alexa','')
+                print(commands)
+            else:
+                talk("Por favor di mi nombre")
     except Exception as e:
         print(e)
-    return save_path
-
-def recongize_audio(save_path):
-    audio_model = whisper.load_model('base')
-    transcription = audio_model.transcribe(save_path, language='spanish',fp16=False)
-    return transcription['text']
+    return commands
 
 
 def main():
-
     try:
-        response = recongize_audio(listen()).lower()
         while True:
-            response = recongize_audio(listen()).lower()
+            response = listen()
             if 'reproduce' in response:
-                music = response.replace('reproduce','')
+                music = response.replace('reproduce', '')
                 talk(f"Reproduciendo {music}")
                 pywhatkit.playonyt(music)
-            if 'apagado' in response:
+            elif 'busca' in response:
+                order = response.replace('busca','')
+                info = wikipedia.summary(order,1)
+                talk(info)
+            elif 'hora' in response:
+                hora = datetime.datetime.now().strftime("%I:%M %p")
+                talk(f"Son las {hora}")
+            elif 'apágate' in response:
                 talk("Apagando...")
                 break
     except Exception as e:
-        talk(f"Lo siento no te entendi debido a este error: {e}")
+        talk(f"Lo siento no te entendi debido a este error")
         print(e)
 
 if __name__ == '__main__':
